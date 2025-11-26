@@ -50,14 +50,31 @@ menuItems.forEach(item => {
         // notification
         // when clicked remove the notification count and show the pop up
         if (item.id !== 'notifications') {
-            // hide the notification pop up
-            document.querySelector('.notification-popup').style.display = 'none';
+            // hide any popups (desktop or mobile)
+            const orig = document.querySelector('.notification-popup');
+            if (orig) orig.style.display = 'none';
+            removeMobileNotificationsPopup();
+            removeMobileMessagesPopup();
         } else {
-            // show the notification pop up
-            document.querySelector('.notification-popup').style.display = 'block';
-
             // hide the notification count
-            document.querySelector('#notifications .notification-count').style.display = 'none';
+            const notifCount = document.querySelector('#notifications .notification-count');
+            if (notifCount) notifCount.style.display = 'none';
+
+            // On small screens we render a fixed popup attached to body (to avoid
+            // sidebar overflow clipping). On larger screens we show the inline popup.
+            if (window.innerWidth <= 992) {
+                showMobileNotificationsPopup();
+            } else {
+                const orig = document.querySelector('.notification-popup');
+                if (orig) orig.style.display = 'block';
+            }
+        }
+
+        // On small screens show a temporary toast with the menu item's title
+        if (window.innerWidth <= 992) {
+            const titleEl = item.querySelector('h3');
+            const title = titleEl ? titleEl.textContent.trim() : (item.getAttribute('data-title') || '');
+            if (title) showToast(title, 2000);
         }
 
     });
@@ -92,16 +109,30 @@ messageSearch.addEventListener('keyup', () => {
 
 // when clicked to highlight the messages card
 messagesNotification.addEventListener('click', () => {
-    // add box shadow to messages card/box
-    // boxShadow 0 0 1rem var(--color-primary) means a glow effect
+    // On small screens, show a fixed mobile messages popup to the left of the bar
+    if (window.innerWidth <= 992) {
+        // hide count
+        const cnt = messagesNotification.querySelector('.notification-count');
+        if (cnt) cnt.style.display = 'none';
+
+        // toggle mobile messages popup
+        if (document.querySelector('.mobile-messages-popup')) {
+            removeMobileMessagesPopup();
+        } else {
+            showMobileMessagesPopup();
+        }
+        return;
+    }
+
+    // Desktop behavior: add box shadow to messages card/box
     messages.style.boxShadow = '0 0 1rem var(--color-primary)';
 
     // hide the notification count
-    messagesNotification.querySelector('.notification-count').style.display = 'none';
+    const cnt = messagesNotification.querySelector('.notification-count');
+    if (cnt) cnt.style.display = 'none';
 
     // remove the box shadow after 2 seconds
     setTimeout(() => {
-        // disappear the box shadow after 2 seconds
         messages.style.boxShadow = 'none';
     }, 2000);
 });
@@ -331,16 +362,205 @@ if (mobileToggle && leftSidebar) {
         
         // Toggle body class for backdrop
         document.body.classList.toggle('menu-open');
+        
+        // If the sidebar was just closed, make sure any mobile popups are removed
+        if (!leftSidebar.classList.contains('open')) {
+            removeMobileNotificationsPopup();
+            removeMobileMessagesPopup();
+        }
     });
 
     // Optional: Close menu when clicking on backdrop
     document.addEventListener('click', (e) => {
         if (document.body.classList.contains('menu-open')) {
-            if (!leftSidebar.contains(e.target) && !mobileToggle.contains(e.target)) {
-                leftSidebar.classList.remove('open');
-                mobileToggle.classList.remove('open');
-                document.body.classList.remove('menu-open');
-            }
+            // If click is inside the left sidebar or the FAB, ignore
+            if (leftSidebar.contains(e.target) || mobileToggle.contains(e.target)) return;
+
+            // If click is inside any mobile popup (notifications/messages), ignore
+            const mobileMsgPopup = document.querySelector('.mobile-messages-popup');
+            const mobileNotifPopup = document.querySelector('.mobile-notification-popup');
+            if ((mobileMsgPopup && mobileMsgPopup.contains(e.target)) || (mobileNotifPopup && mobileNotifPopup.contains(e.target))) return;
+
+            // Otherwise close the sidebar and remove popups
+            leftSidebar.classList.remove('open');
+            mobileToggle.classList.remove('open');
+            document.body.classList.remove('menu-open');
+            // ensure any mobile popups are removed when the menu is closed via backdrop
+            removeMobileNotificationsPopup();
+            removeMobileMessagesPopup();
+            return;
         }
     });
+}
+
+// Toast helper: creates a toast container if needed and shows a fading toast
+function showToast(message, duration = 2000) {
+    let container = document.querySelector('.toast-container');
+    if (!container) {
+        container = document.createElement('div');
+        container.className = 'toast-container';
+        document.body.appendChild(container);
+    }
+
+    const toast = document.createElement('div');
+    toast.className = 'toast';
+    toast.textContent = message;
+    container.appendChild(toast);
+
+    // trigger fade-in
+    requestAnimationFrame(() => toast.classList.add('visible'));
+
+    // remove after duration with fade-out
+    setTimeout(() => {
+        toast.classList.remove('visible');
+        toast.addEventListener('transitionend', () => {
+            if (toast.parentNode) toast.parentNode.removeChild(toast);
+        }, { once: true });
+    }, duration);
+}
+
+/* Mobile notifications popup handling */
+function showMobileNotificationsPopup() {
+    // If already present, toggle it off
+    if (document.querySelector('.mobile-notification-popup')) return;
+
+    const orig = document.querySelector('.notification-popup');
+    if (!orig) return;
+
+    // clone the popup contents so we don't move it from the DOM
+    const clone = orig.cloneNode(true);
+    clone.style.display = 'block';
+    clone.classList.add('cloned-notification-popup');
+
+    const wrapper = document.createElement('div');
+    wrapper.className = 'mobile-notification-popup';
+    wrapper.appendChild(clone);
+
+    document.body.appendChild(wrapper);
+
+    // Close when clicking outside
+    setTimeout(() => { // allow event stack to complete before adding listener
+        document.addEventListener('click', mobileNotificationsOutsideClick);
+    }, 0);
+}
+
+function removeMobileNotificationsPopup() {
+    const existing = document.querySelector('.mobile-notification-popup');
+    if (existing) {
+        existing.parentNode.removeChild(existing);
+        document.removeEventListener('click', mobileNotificationsOutsideClick);
+    }
+}
+
+function mobileNotificationsOutsideClick(e) {
+    const popup = document.querySelector('.mobile-notification-popup');
+    const leftSidebar = document.querySelector('main .container .left');
+    const mobileToggle = document.querySelector('.mobile-menu-toggle');
+    if (!popup) return;
+
+    // if click is inside popup, sidebar, or toggle button — ignore
+    if (popup.contains(e.target) || (leftSidebar && leftSidebar.contains(e.target)) || (mobileToggle && mobileToggle.contains(e.target))) {
+        return;
+    }
+
+    removeMobileNotificationsPopup();
+}
+
+/* Mobile messages popup handling */
+function showMobileMessagesPopup() {
+    if (document.querySelector('.mobile-messages-popup')) return;
+
+    const orig = document.querySelector('.messages');
+    if (!orig) return;
+
+    const clone = orig.cloneNode(true);
+    clone.style.display = 'block';
+    clone.classList.add('cloned-messages');
+
+    // build wrapper and a small header with close button for better UX
+    const wrapper = document.createElement('div');
+    wrapper.className = 'mobile-messages-popup';
+    wrapper.setAttribute('role', 'dialog');
+    wrapper.setAttribute('aria-label', 'Messages');
+
+    // create header bar
+    const header = document.createElement('div');
+    header.className = 'popup-header';
+    header.style.display = 'flex';
+    header.style.alignItems = 'center';
+    header.style.justifyContent = 'space-between';
+    header.style.padding = '0.6rem 0.9rem';
+    header.style.borderBottom = '1px solid rgba(0,0,0,0.04)';
+
+    const title = document.createElement('div');
+    title.className = 'popup-title';
+    title.innerHTML = '<h4 style="margin:0">Messages</h4>';
+
+    const closeBtn = document.createElement('button');
+    closeBtn.className = 'close-btn';
+    closeBtn.setAttribute('aria-label', 'Close messages');
+    closeBtn.innerHTML = '&times;';
+    closeBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        removeMobileMessagesPopup();
+    });
+
+    header.appendChild(title);
+    header.appendChild(closeBtn);
+
+    wrapper.appendChild(header);
+    wrapper.appendChild(clone);
+
+    document.body.appendChild(wrapper);
+
+    // animate in
+    requestAnimationFrame(() => wrapper.classList.add('visible'));
+
+    // Wire up the cloned search input to filter the cloned messages list
+    try {
+        const clonedSearchInput = clone.querySelector('.search-bar input');
+        const clonedMessages = Array.from(clone.querySelectorAll('.message'));
+        if (clonedSearchInput) {
+            clonedSearchInput.addEventListener('keyup', () => {
+                const val = clonedSearchInput.value.toLowerCase();
+                clonedMessages.forEach(chat => {
+                    const nameEl = chat.querySelector('h5');
+                    const name = nameEl ? nameEl.textContent.toLowerCase() : '';
+                    chat.style.display = name.indexOf(val) !== -1 ? 'flex' : 'none';
+                });
+            });
+        }
+    } catch (e) {
+        // non-fatal
+    }
+
+    // close when clicking outside
+    setTimeout(() => {
+        document.addEventListener('click', mobileMessagesOutsideClick);
+    }, 0);
+}
+
+function removeMobileMessagesPopup() {
+    const existing = document.querySelector('.mobile-messages-popup');
+    if (existing) {
+        // animate out then remove
+        existing.classList.remove('visible');
+        existing.addEventListener('transitionend', () => {
+            if (existing.parentNode) existing.parentNode.removeChild(existing);
+        }, { once: true });
+        document.removeEventListener('click', mobileMessagesOutsideClick);
+    }
+}
+
+function mobileMessagesOutsideClick(e) {
+    const popup = document.querySelector('.mobile-messages-popup');
+    const leftSidebar = document.querySelector('main .container .left');
+    const mobileToggle = document.querySelector('.mobile-menu-toggle');
+    if (!popup) return;
+
+    if (popup.contains(e.target) || (leftSidebar && leftSidebar.contains(e.target)) || (mobileToggle && mobileToggle.contains(e.target))) {
+        return;
+    }
+
+    removeMobileMessagesPopup();
 }
