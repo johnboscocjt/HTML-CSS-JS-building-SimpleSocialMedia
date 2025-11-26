@@ -2,7 +2,6 @@
 @import url("https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap");
 
 
-
 /* changing the mode lies from changing the lightness of the color when using hsl */
 
 :root {
@@ -32,6 +31,18 @@
   /* sticky positions */
   --sticky-top-left: 5.4rem;
   --sticky-top-right: -18rem;
+  /* sidebar / compact bar theming */
+  --sidebar-bg: hsl(var(--primary-color-hue), 30%, 12%);
+    /* make sidebar background follow theme's dark/light variables so
+      switching backgrounds updates the sidebar color */
+    --sidebar-bg: hsl(var(--primary-color-hue), 30%, var(--dark-color-lightness));
+  --sidebar-icon: var(--color-white);
+  --sidebar-active-bg: hsl(var(--primary-color-hue), 80%, 45%);
+    /* Make sidebar follow the current theme by using the theme-driven color variables */
+    --sidebar-bg: var(--color-white);
+    --sidebar-icon: var(--color-dark);
+  --sidebar-width: 68px;
+  --sidebar-radius: 1rem;
 }
 
 /* 
@@ -896,8 +907,189 @@ main .container .right {
     */
   .left .notification-popup {
     position: absolute;
-    left: -20rem;
+    /* for compact right-side bar: show the popup to the left of the bar */
+    left: auto;
+    right: calc(100% + 8px);
+    top: 0;
     width: 20rem;
+    z-index: 10002;
+    display: block;
+  }
+
+  /* For small/compact mobile bar we will render a fixed popup appended to body instead
+     of relying on the popup inside the sidebar (sidebar may have overflow hidden). */
+  .mobile-notification-popup {
+    position: fixed;
+    top: 10vh;
+    /* place to the left of the slim right-anchored sidebar */
+    right: calc(12px + var(--sidebar-width) + 8px);
+    width: 20rem;
+    background: var(--color-white);
+    border-radius: var(--card-border-radius);
+    padding: var(--card-padding);
+    box-shadow: 0 6px 24px rgba(8, 10, 20, 0.18);
+    z-index: 10003;
+  }
+
+  .mobile-notification-popup::before {
+    content: "";
+    width: 1.2rem;
+    height: 1.2rem;
+    display: block;
+    background: var(--color-white);
+    position: absolute;
+    right: -0.6rem;
+    top: 1.2rem;
+    transform: rotate(45deg);
+  }
+
+  /* Mobile messages popup - appears to the left of the slim sidebar like notifications */
+  .mobile-messages-popup {
+    position: fixed;
+    top: 8vh;
+    right: calc(12px + var(--sidebar-width) + 8px);
+    width: 20rem;
+    max-width: 420px;
+    min-width: 260px;
+    max-height: 78vh;
+    overflow: hidden;
+    background: var(--color-white);
+    border-radius: calc(var(--card-border-radius) + 0.25rem);
+    padding: 0; /* inner content handles padding */
+    box-shadow: 0 10px 30px rgba(8, 10, 20, 0.22);
+    z-index: 10004;
+    display: flex;
+    flex-direction: column;
+    transition: transform 260ms ease, opacity 260ms ease;
+    transform: translateX(12px);
+    opacity: 0;
+  }
+
+  .mobile-messages-popup::before {
+    content: "";
+    width: 1.2rem;
+    height: 1.2rem;
+    display: block;
+    background: var(--color-white);
+    position: absolute;
+    right: -0.6rem;
+    top: 1.2rem;
+    transform: rotate(45deg);
+  }
+
+  .mobile-messages-popup.visible {
+    transform: translateX(0);
+    opacity: 1;
+  }
+
+  /* inside container for cloned messages content */
+  .mobile-messages-popup .cloned-messages {
+    padding: var(--card-padding);
+    overflow: auto;
+    max-height: calc(78vh - 3.2rem);
+    display: flex;
+    flex-direction: column;
+    gap: 0.6rem;
+  }
+
+  .mobile-messages-popup .cloned-messages .heading {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.5rem;
+    padding-bottom: 0.35rem;
+    border-bottom: 1px solid var(--color-light);
+  }
+
+  .mobile-messages-popup .cloned-messages .heading h4 {
+    margin: 0;
+    font-size: 1.05rem;
+    color: var(--color-dark);
+  }
+
+  .mobile-messages-popup .close-btn {
+    background: transparent;
+    border: none;
+    color: var(--color-dark);
+    font-size: 1.2rem;
+    padding: 0.35rem;
+    border-radius: 0.4rem;
+    cursor: pointer;
+  }
+
+  .mobile-messages-popup .close-btn:hover {
+    background: var(--color-light);
+  }
+
+  /* adjust inner search bar for the small popup */
+  .mobile-messages-popup .cloned-messages .search-bar {
+    padding: 0.35rem 0.45rem;
+    border-radius: calc(var(--border-radius) / 2);
+    /* make search bar look like the main nav search: full width, icon left, rounded */
+    background: var(--color-light);
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  .mobile-messages-popup .cloned-messages .search-bar i {
+    color: var(--color-gray);
+    font-size: 1.05rem;
+    margin-left: 0.25rem;
+  }
+
+  .mobile-messages-popup .cloned-messages .search-bar input {
+    background: transparent;
+    border: none;
+    outline: none;
+    width: 100%;
+    font-size: 0.95rem;
+    padding: 0.4rem 0.25rem;
+    color: var(--color-dark);
+  }
+
+
+  .mobile-messages-popup .cloned-messages .message {
+    gap: 0.6rem;
+    padding: 0.35rem 0;
+  }
+
+  /* force message categories to be horizontal and evenly spaced for small popup */
+  .mobile-messages-popup .cloned-messages .category {
+    display: flex;
+    flex-direction: row;
+    gap: 0.5rem;
+    justify-content: space-between;
+    align-items: center;
+    margin: 0.6rem 0 0.4rem 0;
+  }
+
+  .mobile-messages-popup .cloned-messages .category h6 {
+    flex: 1 1 0;
+    text-align: center;
+    margin: 0;
+    padding: 0.45rem 0.5rem;
+    font-size: 0.85rem;
+    border-radius: 0.45rem;
+    background: transparent;
+  }
+
+  .mobile-messages-popup .cloned-messages .category h6.active {
+    background: var(--color-light);
+    border-bottom: none;
+  }
+
+  @media screen and (max-width: 420px) {
+    .mobile-messages-popup {
+      right: 8px;
+      left: 8px;
+      width: auto;
+      min-width: 0;
+      max-width: calc(100% - 16px);
+      top: 6vh;
+    }
+    .mobile-messages-popup::before { display: none; }
+    .mobile-messages-popup .cloned-messages { max-height: calc(80vh - 3rem); }
   }
 
   /* 
@@ -908,7 +1100,9 @@ main .container .right {
   .left .notification-popup::before {
     position: absolute;
     top: 1.3rem;
-    left: calc(20rem - 0.6rem);
+    /* arrow on the right edge pointing to the sidebar */
+    right: -0.6rem;
+    left: auto;
     display: block;
   }
 
@@ -929,42 +1123,102 @@ main .container .right {
     width: 92vw;
   }
 
-  /* When mobile menu toggle adds .open to the left sidebar, show labels
-     and expand the sidebar into a full-height panel so menu names are visible. */
-  main .container .left.open {
+  /* Mobile: when the menu button opens the sidebar we show a slim
+     vertical icon bar anchored to the right (matches the design screenshot).
+     Labels are hidden and icons centered. Notifications float to the left. */
+  main .container .left {
+    /* hidden off-canvas to the right by default */
+    transform: translateX(100%);
+    transition: transform 0.35s ease;
     position: fixed;
-    inset: 0; /* top:0; right:0; bottom:0; left:0 */
-    width: 100%;
-    height: 100%;
-    z-index: 9999;
+    top: 10vh;
+    right: 12px;
+    width: var(--sidebar-width);
+    height: 80vh;
+    z-index: 10000;
     display: flex;
-    align-items: flex-start;
-    justify-content: flex-start;
-    background: transparent;
+    align-items: center;
+    justify-content: center;
   }
 
-  /* make the sidebar fill the panel and allow scrolling */
-  main .container .left.open .sidebar {
+  /* When open: slide in the slim bar */
+  main .container .left.open {
+    transform: translateX(0);
+  }
+
+  /* style the panel itself */
+  main .container .left .sidebar {
     width: 100%;
     height: 100%;
-    border-radius: 0;
-    overflow-y: auto;
-    background: var(--color-white);
-    padding-top: 1rem;
+    border-radius: 1rem;
+    overflow: hidden;
+    background: var(--sidebar-bg);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 1rem;
+    padding: 0.75rem 0;
   }
 
-  /* menu items slightly taller and with left padding for labels */
-  main .container .left.open .sidebar .menu-item {
-    height: 4.5rem;
-    padding-left: 1rem;
+  /* menu item visuals */
+  main .container .left .sidebar .menu-item {
+    position: relative;
+    transition: background 200ms ease, transform 150ms ease;
+    border-radius: 0.6rem;
   }
 
-  /* show menu labels when sidebar is open on small screens */
-  main .container .left.open .sidebar h3 {
+  main .container .left .sidebar .menu-item:hover {
+    transform: translateX(-4px);
+    background: rgba(255,255,255,0.04);
+  }
+
+  main .container .left .sidebar .menu-item.active {
+    background: var(--sidebar-active-bg);
+    box-shadow: 0 6px 20px rgba(8,10,20,0.2);
+  }
+
+  /* make the active icon stand out */
+  main .container .left .sidebar .menu-item.active i {
+    color: white;
+    transform: scale(1.05);
+  }
+
+  /* center icons and hide labels for compact bar */
+  main .container .left .sidebar .menu-item {
+    height: auto;
+    padding: 0.6rem 0;
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  main .container .left .sidebar h3 {
+    display: none;
+  }
+
+  main .container .left .sidebar i {
+    color: var(--sidebar-icon);
+    /* slightly larger icons for better visibility on small screens */
+    font-size: 1.6rem;
+  }
+
+  /* make create button smaller and pill-like inside the slim panel */
+  main .container .left .btn {
     display: block;
-    margin-left: 0.5rem;
-    font-size: 1rem;
-    color: var(--color-dark);
+    width: 48px;
+    height: 36px;
+    padding: 0;
+    border-radius: 999px;
+    font-size: 0.8rem;
+    align-self: center;
+    margin-top: 0.5rem;
+  }
+
+  /* hide create post button inside the compact mobile bar */
+  main .container .left .btn {
+    display: none;
   }
 }
 
@@ -1030,45 +1284,27 @@ main .container .right {
 }
 
 
-/* preventing two vertical scroll bars on the viewport */
-html, body {
-  overflow-x: hidden !important;
-  width: 100vw;
-  max-width: 100vw;
-}
-
-/* Prevent any child from forcing scroll */
-* {
-  max-width: 100vw;
-  box-sizing: border-box;
-}
-
-
-
-
 /* floating button for the sidebar on small devices*/
 /* ============= MOBILE: HIDE BOTTOM BAR BY DEFAULT & ADD FAB ============= */
 @media screen and (max-width: 992px) {
-    /* Hide the left sidebar (which becomes bottom bar on mobile) */
+    /* Hide the left sidebar off-canvas to the right by default and
+       show a slim right-anchored icon bar when opened */
     main .container .left {
-        transform: translateY(100%);
-        transition: transform 0.4s ease;
-        background: var(--color-white);
-        width: 100%;
-        height: auto;
-        position: fixed;
-        bottom: 0;
-        left: 0;
-        right: 0;
-        z-index: 999;
-        border-top: 1px solid var(--color-light);
-        border-radius: var(--card-border-radius) var(--card-border-radius) 0 0;
-        box-shadow: 0 -5px 20px rgba(0,0,0,0.1);
+      transform: translateX(100%);
+      transition: transform 0.35s ease;
+      position: fixed;
+      top: 10vh;
+      right: 12px;
+      width: 68px;
+      height: 80vh;
+      z-index: 10000;
+      display: flex;
+      align-items: center;
+      justify-content: center;
     }
 
-    /* Show the bottom menu when 'open' class is added */
     main .container .left.open {
-        transform: translateY(0);
+      transform: translateX(0);
     }
 
     /* Floating Action Button */
@@ -1122,9 +1358,89 @@ html, body {
     }
 }
 
+/* Toast notifications for small screens when tapping sidebar icons */
+.toast-container {
+  position: fixed;
+  bottom: 90px; /* sits above the floating menu toggle */
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 10005;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  pointer-events: none; /* allow clicks to pass through */
+}
+
+.toast {
+  background: rgba(0, 0, 0, 0.86);
+  color: #fff;
+  padding: 0.55rem 0.9rem;
+  border-radius: 0.6rem;
+  font-size: 0.95rem;
+  box-shadow: 0 6px 18px rgba(8, 10, 20, 0.25);
+  opacity: 0;
+  transform: translateY(8px);
+  transition: opacity 280ms ease, transform 280ms ease;
+  pointer-events: auto;
+}
+
+.toast.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+@media screen and (max-width: 400px) {
+  .toast {
+    font-size: 0.9rem;
+    padding: 0.45rem 0.75rem;
+  }
+  .toast-container { bottom: 100px; }
+}
+
 /* On large screens: keep normal sidebar behavior */
 @media screen and (min-width: 993px) {
     .mobile-menu-toggle {
         display: none !important;
     }
+}
+
+
+/* preventing two vertical scroll bars on the viewport */
+html, body {
+  /* Avoid forcing viewport width which can cause layout and scroll issues */
+  overflow-x: hidden !important;
+  width: auto;
+  max-width: 100%;
+}
+
+/* Prevent any child from forcing horizontal scroll */
+* {
+  max-width: 100%;
+  box-sizing: border-box;
+}
+
+/* Ensure only a single vertical scrollbar on desktop: keep columns visible and
+   allow modals/panels to scroll internally when needed. This prevents inner
+   containers from creating an extra scrollbar (the "ninja"). */
+@media screen and (min-width: 993px) {
+  html, body {
+    height: 100%;
+    overflow-y: auto;
+  }
+
+  main, main .container {
+    overflow: visible !important;
+  }
+
+  main .container .left,
+  main .container .middle,
+  main .container .right {
+    overflow: visible !important;
+  }
+
+  /* Keep modals and panels scrollable inside their own area */
+  .customize-theme .card {
+    max-height: calc(100vh - 8vh);
+    overflow-y: auto;
+  }
 }
