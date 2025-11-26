@@ -61,6 +61,9 @@ A clean and responsive social media feed built with pure **HTML, CSS, and vanill
 - Smooth hover effects and modern card design
 - Clean and minimal UI inspired by popular social platforms
 - 100% vanilla – no React, no Tailwind, no external dependencies
+- Changing themes
+- Chnaging font size
+- Fully responsive and with floating button for small screen devices
 
 ## Tech Stack
 
