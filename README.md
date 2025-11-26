@@ -8,7 +8,7 @@ A clean and responsive social media feed built with pure **HTML, CSS, and vanill
 
 ## Live Demo
 
-🔗 [View Live Preview](https://johnboscocj.github.io/HTML-CSS-JS-building-SimpleSocialMedia/)  
+🔗 [View Live Preview]([https://johnboscocj.github.io/HTML-CSS-JS-building-SimpleSocialMedia/](https://html-css-js-building-simple-social.vercel.app/))  
 *(Replace with your actual GitHub Pages or hosting link when deployed)*
 
 ## Screenshots
@@ -62,7 +62,7 @@ A clean and responsive social media feed built with pure **HTML, CSS, and vanill
 - Clean and minimal UI inspired by popular social platforms
 - 100% vanilla – no React, no Tailwind, no external dependencies
 - Changing themes
-- Chnaging font size
+- Changing font size
 - Fully responsive and with floating button for small screen devices
 
 ## Tech Stack
