@@ -8,8 +8,7 @@ A clean and responsive social media feed built with pure **HTML, CSS, and vanill
 
 ## Live Demo
 
-🔗 [View Live Preview]([https://johnboscocj.github.io/HTML-CSS-JS-building-SimpleSocialMedia/](https://html-css-js-building-simple-social.vercel.app/))  
-*(Replace with your actual GitHub Pages or hosting link when deployed)*
+🔗 [View Live Preview](https://html-css-js-building-simple-social.vercel.app/)
 
 ## Screenshots
 
@@ -19,9 +18,6 @@ A clean and responsive social media feed built with pure **HTML, CSS, and vanill
 <br><br>
 
 <img src="projectScreenshots/Screenshot from 2025-11-26 18-02-19.png" alt="Post Interaction" width="800"/>
-<br><br>
-
-<img src="projectScreenshots/Screenshot from 2025-11-26 18-02-59.png" alt="Like & Comment" width="800"/>
 <br><br>
 
 <img src="projectScreenshots/Screenshot from 2025-11-26 18-08-43.png" alt="Mobile View 1" height="600"/>
@@ -61,9 +57,9 @@ A clean and responsive social media feed built with pure **HTML, CSS, and vanill
 - Smooth hover effects and modern card design
 - Clean and minimal UI inspired by popular social platforms
 - 100% vanilla – no React, no Tailwind, no external dependencies
-- Changing themes
-- Changing font size
-- Fully responsive and with floating button for small screen devices
+- Changing themes (light/dark mode)
+- Changing font size for accessibility
+- Fully responsive with floating action button for small screen devices
 
 ## Tech Stack
 
@@ -76,4 +72,4 @@ A clean and responsive social media feed built with pure **HTML, CSS, and vanill
 ```bash
 git clone https://github.com/johnboscocj/HTML-CSS-JS-building-SimpleSocialMedia.git
 cd HTML-CSS-JS-building-SimpleSocialMedia
-open index.html```
+open index.html
