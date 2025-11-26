@@ -436,6 +436,20 @@ main .container .left .profile {
   margin-right: 1rem;
 }
 
+/* Make the create-post input visually match the navbar search
+   - remove default borders/outlines and focus shadows
+   - ensure placeholder color matches other muted text */
+.middle .create-post input[type="text"] {
+  border: none;
+  outline: none;
+  box-shadow: none;
+  -webkit-appearance: none;
+}
+
+.middle .create-post input[type="text"]::placeholder {
+  color: var(--color-gray);
+}
+
 /* ================================ FEEDS =========================================== */
 .middle .feeds .feed {
   background: var(--color-white);
