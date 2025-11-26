@@ -175,6 +175,55 @@ fontSizes.forEach(size => {
     });
 });
 
+// Apply font size mapping for a given size element (used on click and on load)
+const applyFontSize = (size) => {
+    let fontSize;
+
+    if (size.classList.contains('font-size-1')) {
+        fontSize = '10px';
+        root.style.setProperty('--sticky-top-left', '5.4rem');
+        root.style.setProperty('--sticky-top-right', '5.4rem');
+    } else if (size.classList.contains('font-size-2')) {
+        fontSize = '13px';
+        root.style.setProperty('--sticky-top-left', '5.4rem');
+        root.style.setProperty('--sticky-top-right', '-7rem');
+    } else if (size.classList.contains('font-size-3')) {
+        fontSize = '16px';
+        root.style.setProperty('--sticky-top-left', '-2rem');
+        root.style.setProperty('--sticky-top-right', '-17rem');
+    } else if (size.classList.contains('font-size-4')) {
+        fontSize = '19px';
+        root.style.setProperty('--sticky-top-left', '-5rem');
+        root.style.setProperty('--sticky-top-right', '-25rem');
+    } else if (size.classList.contains('font-size-5')) {
+        fontSize = '22px';
+        root.style.setProperty('--sticky-top-left', '-12rem');
+        root.style.setProperty('--sticky-top-right', '-35rem');
+    }
+
+    if (fontSize) {
+        document.querySelector('html').style.fontSize = fontSize;
+    }
+};
+
+// Hook up existing click handlers to use the new applyFontSize function
+fontSizes.forEach(size => {
+    size.addEventListener('click', () => {
+        removeSizeSelector();
+        size.classList.add('active');
+        applyFontSize(size);
+    });
+});
+
+// On load, if any font-size span already has the `active` class, apply it
+document.addEventListener('DOMContentLoaded', () => {
+    fontSizes.forEach(size => {
+        if (size.classList.contains('active')) {
+            applyFontSize(size);
+        }
+    });
+});
+
 
 // remove active class from colors
 const removeActiveColorClass = () => {
