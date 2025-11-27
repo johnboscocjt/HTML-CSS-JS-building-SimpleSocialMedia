@@ -1141,6 +1141,17 @@ main .container .right {
     justify-content: center;
   }
 
+  /* Fix mobile scroll behaviour: ensure the page (body) handles the
+     vertical scroll rather than inner containers capturing the first
+     wheel/touch event. This prevents jumping to the next feed on the
+     first small scroll on some mobile browsers. */
+  main, .container, .middle, .feeds {
+    overflow: visible !important;
+    -webkit-overflow-scrolling: touch; /* smooth native momentum */
+    touch-action: pan-y; /* allow vertical panning */
+    overscroll-behavior-y: auto; /* don't trap scroll unexpectedly */
+  }
+
   /* When open: slide in the slim bar */
   main .container .left.open {
     transform: translateX(0);
@@ -1356,6 +1367,31 @@ main .container .right {
         opacity: 1;
         visibility: visible;
     }
+
+    /* When the mobile menu is open, keep a single scrollbar by disabling
+       the page (outer) scrollbar and enabling scrolling only inside the
+       main content area. This prevents two simultaneous scrollbars. */
+    body.menu-open {
+      overflow: hidden; /* prevent outer scrollbar */
+    }
+
+    /* Make the main feed scrollable inside the viewport while menu is open */
+    main {
+      height: calc(100vh - 5.4rem);
+      overflow-y: auto;
+      -webkit-overflow-scrolling: touch;
+    }
+
+    /* Ensure the opened sidebar does not create its own scrollbar */
+    main .container .left.open {
+      max-height: calc(100vh - 6vh);
+      overflow: visible !important;
+    }
+
+    /* d removed from sidebar on small screens due to cloning */
+    .left .notification-popup {
+        display: none !important;
+    }
 }
 
 /* Toast notifications for small screens when tapping sidebar icons */
@@ -1423,23 +1459,39 @@ html, body {
    allow modals/panels to scroll internally when needed. This prevents inner
    containers from creating an extra scrollbar (the "ninja"). */
 @media screen and (min-width: 993px) {
+  /* Hide the browser (outer) scrollbar and make the main area the
+     single scroll container on large screens. This creates one inner
+     scrollbar for the feed and avoids double-scrollbar UX. */
   html, body {
     height: 100%;
-    overflow-y: auto;
+    overflow: hidden; /* hide outer scrollbar */
   }
 
-  main, main .container {
+  /* Size main to the viewport minus the fixed nav, and make it scrollable */
+  main {
+    height: calc(100vh - 5.4rem);
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  /* Ensure the grid container fills the scroll area and does not create its own scrollbar */
+  main .container {
+    height: 100%;
     overflow: visible !important;
   }
 
+  /* Keep left/middle/right panels visible but let main handle scrolling */
   main .container .left,
   main .container .middle,
   main .container .right {
     overflow: visible !important;
+    height: auto !important;
+    max-height: none !important;
   }
 
   /* Keep modals and panels scrollable inside their own area */
-  .customize-theme .card {
+  .customize-theme .card,
+  .mobile-messages-popup .cloned-messages {
     max-height: calc(100vh - 8vh);
     overflow-y: auto;
   }
