@@ -537,23 +537,33 @@ nav .container {
   background: var(--color-light);
   border-radius: var(--border-radius);
   padding: var(--search-padding);
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
 }
 
 
+.search-bar i {
+  color: var(--color-gray);
+  font-size: 1.05rem;
+  flex: 0 0 auto;
+}
+
 .search-bar input[type="search"] {
-  .middle .feeds .feed {
-    background: var(--color-white);
-    border-radius: var(--card-border-radius);
-    padding: var(--card-padding);
-    margin: 1rem 0;
-    font-size: 0.85rem;
-    line-height: 1.5;
-    position: relative;
-    box-sizing: border-box;
-    /* ensure there's always a small left padding so left-side icons
-       don't sit flush to or overflow the card edge */
-    padding-left: max(var(--card-padding), 0.8rem);
-    padding-right: var(--card-padding);
+  border: none;
+  background: transparent;
+  font-size: 0.95rem;
+  color: var(--color-dark);
+  width: clamp(140px, 28vw, 420px);
+  padding: 0;
+  margin: 0;
+  box-sizing: border-box;
+}
+
+/* ensure the search input shrinks on very small screens */
+@media (max-width: 520px) {
+  .search-bar input[type="search"] {
+    width: clamp(100px, 40vw, 220px);
   }
 }
 
@@ -1938,7 +1948,7 @@ main .container .right {
       place-items: center;
       font-size: 1.8rem;
       cursor: pointer;
-      z-index: 10001; /* keep above the opened sidebar (9999) */
+      z-index: 20050; /* keep above the opened sidebar (9999) and feed icons */
       pointer-events: auto;
       box-shadow: 0 4px 15px rgba(106, 90, 205, 0.4);
       transition: all 0.3s ease;
@@ -1972,6 +1982,16 @@ main .container .right {
     body.menu-open::before {
         opacity: 1;
         visibility: visible;
+    }
+
+    /* When the mobile menu is open we want floating controls (FAB / sidebar)
+       to appear above feed-level action icons like the bookmark. Some
+       responsive rules set the action buttons' z-index high (eg. 10010),
+       so lower them while the mobile menu is open to avoid stacking issues. */
+    body.menu-open .middle .feed .action-buttons,
+    body.menu-open .middle .feed .action-buttons *,
+    body.menu-open .middle .create-post input[type="submit"] {
+      z-index: 900 !important;
     }
 
     /* When the mobile menu is open, keep a single scrollbar by disabling
