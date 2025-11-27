@@ -1246,6 +1246,17 @@ main .container .right {
     box-sizing: border-box;
   }
 
+  /* Ensure feed cards and their action buttons leave room on the right so
+     the slim sidebar / FAB doesn't cover icons like the bookmark. */
+  .middle .feeds .feed {
+    padding-right: calc(var(--sidebar-width) + 1.25rem + env(safe-area-inset-right));
+  }
+
+  .middle .feed .action-buttons {
+    margin: 0.6rem;
+    padding-right: calc(var(--sidebar-width) + 0.5rem + env(safe-area-inset-right));
+  }
+
   /* Give the feeds extra bottom padding so the FAB doesn't cover the last posts */
   .middle .feeds {
     /* include safe-area inset at the bottom for devices with gesture areas */
