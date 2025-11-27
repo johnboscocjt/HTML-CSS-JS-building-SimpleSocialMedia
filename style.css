@@ -107,6 +107,315 @@
   object-fit: cover;
 }
 
+/* Very small screen overrides to prevent large computed right-padding
+   (some CSS earlier may include sidebar widths that are unsuitable for
+   narrow phones like Samsung A12). These keep icons/buttons visible. */
+@media (max-width: 420px) {
+  .middle .feeds .feed {
+    max-width: 100%;
+    margin-left: 0;
+    margin-right: 0;
+    padding-left: 0.6rem;
+    padding-right: 1rem; /* small fixed padding so icons remain visible */
+  }
+
+  .middle .create-post,
+  .middle .feed .action-buttons,
+  .middle .feed .action-buttons > * {
+    padding-right: 1rem;
+    gap: 0.4rem;
+  }
+
+  /* slightly reduce elements that take vertical space */
+  .middle .stories {
+    height: min(7.6rem, 18vh);
+  }
+}
+
+/* Extra-tight overrides for very narrow phones (<=360px logical width).
+   This handles compact small phones and older Android devices. */
+@media (max-width: 360px) {
+  .middle .feeds .feed {
+    padding-left: 0.5rem;
+    padding-right: 0.8rem;
+  }
+
+  .middle .create-post input[type="text"] {
+    font-size: 0.95rem;
+    padding-left: 0.5rem;
+    padding-right: 0.5rem;
+  }
+
+  .middle .create-post input[type="submit"] {
+    padding: 0.45rem 0.6rem;
+  }
+
+  .middle .feed .action-buttons {
+    gap: 0.35rem;
+  }
+}
+
+/* Ensure slightly larger small phones also get full-width, unclipped layout
+   (covers devices like Samsung S20, Galaxy A12/12S, Galaxy 12 etc). */
+@media (max-width: 450px) {
+  /* Remove centered max-width and let feeds fill available width */
+  .middle .feeds .feed,
+  .middle .feeds {
+    max-width: none !important;
+    width: 100% !important;
+    margin-left: 0 !important;
+    margin-right: 0 !important;
+    padding-left: 0.45rem !important;
+    padding-right: 0.6rem !important;
+    box-sizing: border-box;
+  }
+
+  /* Ensure the middle container doesn't add extra right offset */
+  main .container .middle {
+    padding-left: 0.5rem !important;
+    padding-right: 0.6rem !important;
+  }
+
+  /* Pin action buttons inside the feed to avoid being cut by the slim sidebar */
+  .middle .feed .action-buttons {
+    position: absolute;
+    top: 0.6rem;
+    right: 0.5rem;
+    z-index: 10010; /* well above sidebar */
+    background: transparent;
+    gap: 0.4rem;
+    font-size: 1rem;
+  }
+
+  /* Make sure icons don't overflow the viewport */
+  .middle .feed .action-buttons > * {
+    flex: 0 0 auto;
+    margin: 0;
+  }
+
+  /* Compress create-post so submit remains visible */
+  .middle .create-post {
+    padding: 0.3rem 0.5rem !important;
+    gap: 0.35rem !important;
+  }
+
+  .middle .create-post input[type="text"] {
+    padding: 0.28rem 0.35rem !important;
+    font-size: 0.95rem !important;
+  }
+
+  .middle .create-post input[type="submit"] {
+    padding: 0.32rem 0.5rem !important;
+    min-width: 44px !important;
+    flex: 0 0 auto !important;
+  }
+
+  /* Limit image heights so feed cards don't become too tall and push icons off-screen */
+  .middle .feed .photo img {
+    max-height: 36vh;
+  }
+
+  /* Add a small right-safe padding to the feed container to account for FAB, but keep it small */
+  .middle .feeds {
+    padding-bottom: calc(var(--fab-size) + env(safe-area-inset-bottom) + 0.6rem);
+  }
+}
+
+/* Final nudge for bookmark icon and create-post submit on narrow phones */
+@media (max-width: 480px) {
+  /* Slightly increase right padding so icons/buttons become fully visible */
+  .middle .feeds .feed {
+    padding-right: 1.8rem !important;
+  }
+
+  .middle .create-post {
+    padding-right: 1.8rem !important;
+  }
+
+  /* Move absolutely-positioned action buttons a bit more inward from the edge */
+  .middle .feed .action-buttons {
+    right: 1.1rem !important;
+  }
+
+  /* Ensure the submit button is displayed above the slim sidebar and moved inward */
+  .middle .create-post input[type="submit"] {
+    position: relative;
+    transform: translateX(-8px) !important;
+    z-index: 10030 !important;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.12);
+  }
+}
+
+/* Ultra-narrow phones (<=320px / 300px widths) — ensure controls stay visible */
+@media (max-width: 320px) {
+  .middle .feeds .feed {
+    max-width: 100%;
+    margin-left: 0;
+    margin-right: 0;
+    padding-left: 0.4rem;
+    padding-right: 0.6rem; /* very small fixed padding for 300px widths */
+  }
+
+  .middle .create-post {
+    gap: 0.25rem;
+    padding-right: 0.6rem;
+  }
+
+  .middle .create-post input[type="text"] {
+    font-size: 0.9rem;
+    padding: 0.35rem 0.45rem;
+  }
+
+  .middle .create-post input[type="submit"] {
+    padding: 0.35rem 0.45rem;
+    font-size: 0.88rem;
+  }
+
+  .middle .feed .action-buttons {
+    gap: 0.3rem;
+    padding-right: 0.5rem;
+  }
+
+  .middle .feed .action-buttons > * {
+    flex: 0 0 auto;
+  }
+
+  /* Make room at the bottom for floating button + gesture area */
+  .middle {
+    padding-bottom: calc(var(--fab-size) + env(safe-area-inset-bottom) + 0.8rem);
+  }
+
+  /* Slightly reduce story avatar size to free vertical space */
+  .middle .stories .story {
+    min-width: 3.8rem;
+    height: 3.8rem;
+  }
+}
+
+/* Targeted aggressive reductions for narrow phones (<=380px and <=360px)
+   — shrink paddings, tighten gaps, reduce image height and pin action
+   buttons to the right so bookmark and post button remain visible/clickable. */
+@media (max-width: 380px) {
+  .middle .feeds .feed {
+    position: relative; /* needed for absolutely positioned action buttons */
+    margin: 0.35rem 0;
+    padding: 0.35rem;
+    font-size: 0.82rem;
+    border-radius: 0.6rem;
+  }
+
+  .middle .feed .photo img {
+    max-height: 32vh;
+    object-fit: cover;
+    margin-top: 6px;
+  }
+
+  .middle .feed .action-buttons {
+    position: absolute;
+    top: 0.5rem;
+    right: 0.5rem;
+    z-index: 10005;
+    display: flex;
+    gap: 0.35rem;
+    align-items: center;
+    background: transparent;
+    padding: 0; /* keep tight */
+    font-size: 0.98rem;
+  }
+
+  /* Ensure each icon/button inside action-buttons doesn't shrink */
+  .middle .feed .action-buttons > * {
+    flex: 0 0 auto;
+    margin: 0;
+  }
+
+  /* Compress create-post and keep submit visible */
+  .middle .create-post {
+    padding: 0.22rem 0.5rem;
+    gap: 0.32rem;
+  }
+
+  .middle .create-post input[type="text"] {
+    padding: 0.3rem 0.4rem;
+    font-size: 0.9rem;
+  }
+
+  .middle .create-post input[type="submit"] {
+    padding: 0.32rem 0.48rem;
+    font-size: 0.86rem;
+    min-width: 44px;
+    flex: 0 0 auto;
+  }
+
+  /* reduce story header sizes to free vertical space */
+  .middle .stories { height: 7.8rem; }
+  .middle .stories .story { padding: 0.5rem; }
+}
+
+@media (max-width: 360px) {
+  .middle .feeds .feed {
+    padding: 0.28rem;
+    margin: 0.3rem 0;
+    font-size: 0.8rem;
+  }
+
+  .middle .feed .action-buttons { top: 0.45rem; right: 0.45rem; font-size: 0.94rem; }
+
+  .middle .feed .photo img { max-height: 30vh; }
+
+  .middle .create-post input[type="submit"] { min-width: 40px; padding: 0.28rem 0.42rem; }
+}
+
+/* Extra safety rules for narrow displays to prevent clipping of icons/buttons */
+@media (max-width: 420px) {
+  /* Use max() so the safe-area inset is respected but we never get an excessively large value */
+  .middle .feeds .feed {
+    padding-right: max(0.8rem, env(safe-area-inset-right));
+  }
+
+  /* Action buttons should stay inside the feed box and float above content if needed */
+  .middle .feed .action-buttons {
+    position: relative;
+    right: 0;
+    z-index: 5;
+    overflow: visible;
+    padding-right: max(0.6rem, env(safe-area-inset-right));
+  }
+
+  /* Prevent icons/buttons from wrapping or being compressed to zero */
+  .middle .feed .action-buttons > * {
+    white-space: nowrap;
+    flex: 0 0 auto;
+  }
+
+  /* Ensure the create-post submit button does not wrap or get pushed out */
+  .middle .create-post input[type="submit"] {
+    white-space: nowrap;
+    margin: 0;
+    box-sizing: border-box;
+    z-index: 6;
+  }
+}
+
+/* When the mobile slim sidebar / menu is open, add extra right padding to the
+   middle column so the slim bar doesn't overlap feed content on narrow phones. */
+@media screen and (max-width: 992px) {
+  body.menu-open main .container .middle {
+    padding-right: calc(var(--sidebar-width) + 0.8rem + env(safe-area-inset-right));
+  }
+
+  body.menu-open .middle .feeds .feed {
+    padding-right: calc(var(--sidebar-width) + 0.8rem + env(safe-area-inset-right));
+  }
+
+  /* Ensure action icons and create-post button stack above the slim sidebar */
+  .middle .feed .action-buttons,
+  .middle .create-post input[type="submit"] {
+    position: relative;
+    z-index: 10002; /* above the slim sidebar (which uses z-index ~10000) */
+  }
+}
+
 /* 
 zero everything for before and after,
 this will help to avoid any default styling issues and give a clean slate
@@ -232,14 +541,20 @@ nav .container {
 
 
 .search-bar input[type="search"] {
-  background: transparent;
-  width: 30vw;
-  margin-left: 1rem;
-  font-size: 0.9rem;
-  color: var(--color-dark);
-}
-nav .search-bar input[type="search"]::placeholder {
-  color: var(--color-gray);
+  .middle .feeds .feed {
+    background: var(--color-white);
+    border-radius: var(--card-border-radius);
+    padding: var(--card-padding);
+    margin: 1rem 0;
+    font-size: 0.85rem;
+    line-height: 1.5;
+    position: relative;
+    box-sizing: border-box;
+    /* ensure there's always a small left padding so left-side icons
+       don't sit flush to or overflow the card edge */
+    padding-left: max(var(--card-padding), 0.8rem);
+    padding-right: var(--card-padding);
+  }
 }
 
 /* remove browser default focus outline and blue glow on search inputs (covers text and search types) */
@@ -276,13 +591,25 @@ main .container {
   position: relative;
 }
 
-/* ========================== LEFT SECTION STYLES ============================= */
-/* left section */
-main .container .left {
-  height: max-content;
-  position: sticky;
-  top: var(--sticky-top-left);
-}
+  .middle .feed .action-buttons {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 1.4rem;
+    /* keep vertical spacing but avoid lateral margins that push icons out */
+    margin: 0.6rem 0;
+    padding: 0 0.4rem; /* small horizontal padding to keep icons inside */
+    box-sizing: border-box;
+    width: 100%;
+  }
+
+  /* make the left group of interaction icons layout predictably */
+  .middle .feed .action-buttons .interaction-buttons {
+    display: flex;
+    gap: 0.6rem;
+    align-items: center;
+    flex: 0 0 auto;
+  }
 
 main .container .left .profile {
   padding: var(--card-padding);
